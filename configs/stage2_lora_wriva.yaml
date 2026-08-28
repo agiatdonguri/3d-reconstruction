@@ -1,0 +1,39 @@
+# MV-SAM3D Stage-2 LoRA — Trinity paths for SCS id tnishida
+# Train from /scratch on a compute node (see scripts/run_trinity_stage2_lora.sh).
+# This YAML is the template; the Trinity launcher overrides data/output to scratch.
+
+layout: wriva
+case_name: t01_v01_s06_r08_ImageDensity_A01_iPad_LTS
+scene: t01_v01_s06_r08_ImageDensity_A01_iPad_LTS
+
+# NAS long-term copy (NOT /data2/mehark). Launcher syncs to /scratch before train.
+data_root: /data3/tnishida/WRIVA
+mask_root: /data3/tnishida/masks
+mask_subdir: ""
+wriva_images_rel: sparse/undistorted_mitigated_images/0
+
+mvsam3d_root: /home/tnishida/code/MV-SAM3D
+pipeline_yaml: ""
+
+micro_n: 8
+seed: 0
+stage1_steps: 25
+stage2_teacher_steps: 25
+
+train_steps: 200
+lr: 0.0001
+weight_decay: 0.01
+grad_clip: 1.0
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.0
+lora_targets: [to_qkv, to_q, to_kv, to_out]
+log_every: 10
+
+# Prefer writing run artifacts under scratch during the job, then rsync to NAS once.
+output_dir: /data3/tnishida/outputs/stage2_lora
+run_name: ""
+resume_adapter: ""
+
+device: cuda
+compile_pipeline: false

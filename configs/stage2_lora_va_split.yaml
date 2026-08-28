@@ -1,0 +1,37 @@
+# MV-SAM3D Stage-2 LoRA — Trinity / cluster defaults
+# Override paths for your filesystem (or use env STAGE2_* / CLI flags).
+
+case_name: va_split
+
+# Dataset root containing satellite/images + satellite/masks
+data_root: /path/to/SatelliteFuse/datasets/va_split
+aerial_subdir: satellite
+img_subdir: images
+mask_subdir: masks
+
+# Checkout of MV-SAM3D (must include notebook/inference.py + checkpoints/hf/)
+mvsam3d_root: /path/to/MV-SAM3D
+# Leave empty to use <mvsam3d_root>/checkpoints/hf/pipeline.yaml
+pipeline_yaml: ""
+
+micro_n: 8
+seed: 0
+stage1_steps: 25
+stage2_teacher_steps: 25
+
+train_steps: 200
+lr: 0.0001
+weight_decay: 0.01
+grad_clip: 1.0
+lora_r: 16
+lora_alpha: 32
+lora_dropout: 0.0
+lora_targets: [to_qkv, to_q, to_kv, to_out]
+log_every: 10
+
+output_dir: ./outputs/stage2_lora
+run_name: ""
+resume_adapter: ""
+
+device: cuda
+compile_pipeline: false

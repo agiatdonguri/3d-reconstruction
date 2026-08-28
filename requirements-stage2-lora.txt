@@ -1,0 +1,19 @@
+# Runtime deps for Stage-2 LoRA *assuming* MV-SAM3D + CUDA stack already installed
+# on the cluster the same way as Colab (torch 2.5.1+cu121, spconv, flash-attn, kaolin, …).
+#
+# Do NOT pip-install cumm/spconv from PyPI after a working compiled stack.
+
+peft==0.13.2
+accelerate
+PyYAML>=5.4
+matplotlib
+pillow
+numpy>=1.26,<2
+tqdm
+safetensors
+
+# Eval (prof): DreamSim perceptual distance — install on GPU node when scoring
+# dreamsim
+
+# Optional: auto building masks for WRIVA (if not copying Drive masks)
+# segment-anything
