@@ -2,6 +2,8 @@
 
 See **[TRINITY.md](TRINITY.md)** for cluster rules (no SLURM, scratch training, path layout) and **[DATA.md](DATA.md)** for WRIVA input vs eval.
 
+Colab/reference notebooks: **[notebooks/](notebooks/)**. Agents never `git commit` — only you do.
+
 ## Quick start (Trinity)
 
 ```bash
