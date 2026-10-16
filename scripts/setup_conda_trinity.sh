@@ -24,8 +24,13 @@ if ! command -v conda >/dev/null 2>&1; then
   source "$HOME/miniconda3/etc/profile.d/conda.sh"
 else
   # shellcheck disable=SC1091
-  source "$(conda info --base)/etc/profile.d/conda.sh"
+  source "$(conda info --base)/etc/profile.d/conda.sh" 2>/dev/null \
+    || source "$HOME/miniconda3/etc/profile.d/conda.sh"
 fi
+
+# Newer Miniconda requires explicit ToS accept (non-interactive clusters)
+conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main 2>/dev/null || true
+conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r 2>/dev/null || true
 
 if ! conda env list | awk '{print $1}' | grep -qx "$ENV_NAME"; then
   conda create -y -n "$ENV_NAME" "python=${PYTHON_VERSION}"
