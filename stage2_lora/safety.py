@@ -83,8 +83,8 @@ def assert_writable_dir(
     p = assert_not_readonly_target(path, label=label)
     if create:
         p.mkdir(parents=True, exist_ok=True)
-    # probe write access without leaving junk if possible
-    probe = p / ".stage2_write_probe"
+    # probe write access without leaving junk if possible (per process: parallel ranks share the directory)
+    probe = p / f".stage2_write_probe.{os.getpid()}"
     try:
         probe.write_text("ok")
         probe.unlink()

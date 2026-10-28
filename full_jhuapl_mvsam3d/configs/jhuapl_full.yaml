@@ -1,0 +1,71 @@
+# Full JHU APL WRIVA scene with MV-SAM3D, using the GT (pseudo-GT) metric depth and COLMAP poses.
+# Every key is optional (defaults + explanations: scene_mvsam3d/config.py). Override per run with
+#   --set key=value          (lists: --set prompts=building,tree)
+# or through the launcher:   EXTRA_SETS="key=value key2=value2" ./run_trinity.sh
+#
+# TODO after talking to Mehar (README "What to get from Mehar"):
+#   scene       → the exact folder name of the full JHU APL scene (pass SCENE=… to the launcher)
+#   image_glob  → only if the scene mixes drone and ground photos and we want drone views only
+
+# ---- inputs (the launcher syncs /data3/tnishida/WRIVA/<scene> here first) ----
+wriva_root: /scratch/tnishida/WRIVA
+scene: ""
+images_rel: sparse/undistorted_mitigated_images/0
+colmap_rel: ""                               # GT poses; "" = auto (sparse/sparse per Mehar, else sparse, sparse/0)
+depth_rel: sparse/metric_z_depth_mve         # MoGe depth per image = the (pseudo) GT depth; no true GT depth exists
+depth_kind: z                                # `inspect` checks z-depth vs distance along the ray
+depth_scale_json_rel: sparse/depth_scale.json
+depth_scale_mode: auto                       # `inspect` reports which of auto / json / none is right
+image_glob: "*"
+max_images: 0
+
+# ---- outputs ----
+work_root: /scratch/tnishida/outputs/full_jhuapl_mvsam3d
+run_name: ""                                 # empty → scene name
+
+# ---- masks: SAM 3 (`masks` stage) or Mehar's (`import_masks` stage) ----
+prompts: [building]
+sam3_checkpoint: ""                          # empty → facebook/sam3 from Hugging Face (needs access)
+sam3_score_thresh: 0.4
+mask_min_area_frac: 0.0005
+masks_import_dir: ""                         # e.g. /data3/tnishida/WRIVA/<scene>__masks
+masks_import_pattern: "{stem}"               # e.g. "{stem}_*" for one PNG per building
+masks_import_prompt: building
+masks_import_kind: auto
+
+# ---- multi-view association (3D) ----
+lift_stride: 6                               # the full site has many views; lifting every 6th pixel is plenty
+voxel_size: 0.0                              # metres; 0 → automatic (site extent / 400, ≥ 2.5 × sample spacing)
+min_view_support: 2
+min_object_voxels: 30
+min_object_views: 3
+assign_min_frac: 0.3
+split_min_frac: 0.05
+split_min_samples: 30
+
+# ---- per-building MV-SAM3D input ----
+views_per_object: 8
+min_view_coverage: 0.15
+image_max_side: 1600
+
+# ---- MV-SAM3D ----
+mvsam3d_root: /home/tnishida/code/MV-SAM3D
+model_tag: hf
+seed: 42
+stage1_steps: 50
+stage2_steps: 25
+decode_formats: gaussian,mesh
+stage2_weight_source: entropy
+mvsam3d_pose_optimization: false
+object_timeout_min: 45
+max_objects: 0                               # smoke test: EXTRA_SETS="max_objects=3"
+
+# ---- placement, Mehar-style refinement, evaluation ----
+refine: true
+refine_dofs: [yaw, tx, ty, s_h, s_v]         # Mehar's parametrization; add tz to free the height offset
+refine_max_views: 12
+refine_max_evals: 400
+refine_max_scale: 4.0
+eval_max_side: 512
+occlusion_tol: 0.05
+surface_samples: 60000
